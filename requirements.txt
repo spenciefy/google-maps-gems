@@ -1,5 +1,4 @@
-streamlit
-pandas
-geocoder
-requests==2.26.0
-st-clickable-images==0.0.3
+pandas==2.2.3
+Requests==2.32.3
+st_clickable_images==0.0.3
+streamlit==1.27.0
