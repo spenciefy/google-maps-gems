@@ -1,25 +1,16 @@
 import streamlit as st
 import pandas as pd
 import re
-import os
-import json
-from docx import Document
-from supabase import create_client, Client
-from mapbox import Geocoder
 from PIL import Image
-from openai import OpenAI
 from io import BytesIO
-import streamlit as st  # pip install streamlit=1.12.0
+import streamlit as st 
 import pandas as pd
-from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, JsCode # pip install streamlit-aggrid==0.2.3
 from datetime import datetime
 import requests  # Add this import
 from st_clickable_images import clickable_images
 import streamlit.components.v1 as components
 
 google_maps_api_key = st.secrets["GOOGLE_MAPS_API_KEY"]
-# client = OpenAI(api_key=st.secrets["openai_key"])
-# supabase: Client = create_client(st.secrets["supabase_url"], st.secrets["supabase_key"])
 
 def snake_case(s):
     s = re.sub(r'[^a-zA-Z0-9]', ' ', s).lower().replace(' ', '_')

@@ -1,6 +1,12 @@
-# 🏗️ ML model builder template
+# Google Maps Gems
 
-A simple Streamlit app that lets you build simple ML models with scikit-learn.
+> "4.9 rating and <100 reviews are Google Maps gems" - Spencer
+
+a little streamlit app to search google maps for places with high ratings and low review counts
+
+## Running locally
+
+A simple Streamlit app:
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ml-model-builder-template.streamlit.app/)
 
