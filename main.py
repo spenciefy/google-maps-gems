@@ -1,14 +1,9 @@
 import streamlit as st
 import pandas as pd
 import re
-from PIL import Image
-from io import BytesIO
-import streamlit as st 
 import pandas as pd
-from datetime import datetime
-import requests  # Add this import
+import requests
 from st_clickable_images import clickable_images
-import streamlit.components.v1 as components
 
 google_maps_api_key = st.secrets["GOOGLE_MAPS_API_KEY"]
 

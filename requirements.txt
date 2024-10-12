@@ -1,10 +1,5 @@
 streamlit
 pandas
-supabase
-mapbox
-python-docx
-openai
 geocoder
-streamlit-aggrid==0.3.4
 requests==2.26.0
 st-clickable-images==0.0.3
