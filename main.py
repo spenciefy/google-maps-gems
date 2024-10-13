@@ -25,34 +25,33 @@ st.set_page_config(page_title='Four Point Nine', page_icon='🏗️', layout='wi
 st.title("Find Gems on Google Maps")
 st.info("\"4.9 rating and <100 reviews on Google Maps.\" - Spencer\n\n*Note: Searches don't always find every new place, the more specific the better.*")
 
-col1, col2 = st.columns([1, 1])
+col1, col2, col3 = st.columns([2, 1, 1])
 
 with col1:
     query = st.text_input(
         "Search by type of place and where",
         value="restaurants in greenpoint, brooklyn",
         help="e.g. restaurants in lower east side, new york",
-        key="search_query"  # Add a key to the text_input
+        key="search_query"
     )
 
 with col2:
-    col2_1, col2_2 = st.columns(2)
-    with col2_1:
-        min_rating = st.slider(
-            "Minimum Rating",
-            min_value=4.5,
-            max_value=5.0,
-            value=4.7,
-            step=0.1
-        )
-    with col2_2:
-        max_reviews = st.slider(
-            "Maximum Reviews",
-            min_value=50,
-            max_value=500,
-            value=100,
-            step=50
-        )
+    min_rating = st.slider(
+        "Minimum Rating",
+        min_value=4.5,
+        max_value=5.0,
+        value=4.7,
+        step=0.1
+    )
+
+with col3:
+    max_reviews = st.slider(
+        "Maximum Reviews",
+        min_value=50,
+        max_value=500,
+        value=100,
+        step=50
+    )
 
 # Function to fetch places from Google Places API
 def fetch_places(query, min_rating, max_reviews):
@@ -183,10 +182,11 @@ def perform_search():
                         with col1:
                             if review['author_photo']:
                                 st.image(review['author_photo'], width=30)
+                          
                         with col2:
                             st.markdown(f"**{review['author_name']}**")
-                            st.markdown(f"<small>{review['publish_time']}</small>", unsafe_allow_html=True)
                         st.markdown(f"{'⭐' * int(review['rating'])}")
+                        st.markdown(f"<small>{review['publish_time']}</small>", unsafe_allow_html=True)
                         st.markdown(f"<div style='height: 150px; overflow-y: auto;'>{review['text']}</div>", unsafe_allow_html=True)
 
         # Add CSS to enable horizontal scrolling and set max height for reviews
@@ -209,6 +209,19 @@ def perform_search():
         small {
             font-size: 0.8em;
             color: #666;
+            display: block;
+            margin-top: -5px;  /* Negative margin to reduce space */
+        }
+        /* Decrease spacing between markdown elements in reviews */
+        .stHorizontalBlock > div .stMarkdown {
+            margin-bottom: 0.5rem;
+        }
+        .stHorizontalBlock > div .stMarkdown p {
+            margin-bottom: 0.2rem;
+        }
+        /* Remove space between stars and publish time */
+        .stHorizontalBlock > div .stMarkdown p:nth-of-type(2) {
+            margin-bottom: 0;
         }
         </style>
         """, unsafe_allow_html=True)
