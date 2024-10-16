@@ -1,11 +1,16 @@
 import streamlit as st
 import pandas as pd
 import re
-import pandas as pd
 import requests
 from st_clickable_images import clickable_images
+from supabase import create_client, Client
+from datetime import datetime
+import uuid  # Add this import for generating unique IDs
 
 google_maps_api_key = st.secrets["GOOGLE_MAPS_API_KEY"]
+
+# Set up Supabase client
+supabase: Client = create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
 
 def snake_case(s):
     s = re.sub(r'[^a-zA-Z0-9]', ' ', s).lower().replace(' ', '_')
@@ -20,8 +25,7 @@ def convert_price_level(price_level):
     }
     return price_map.get(price_level, 'N/A')
 
-# Page title
-st.set_page_config(page_title='Four Point Nine', page_icon='🏗️', layout='wide')
+st.set_page_config(page_title='Google Maps Gems', page_icon='⭐️', layout='wide')
 st.title("Find Gems on Google Maps")
 st.info("\"The best places have a 4.9 rating and <100 reviews on Google Maps.\" - [Spencer](https://x.com/spenciefy)\n\n*Note: Searches don't always find every new place, the more specific the better.*")
 
@@ -59,7 +63,7 @@ def fetch_places(query, min_rating, max_reviews):
     headers = {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': google_maps_api_key,
-        'X-Goog-FieldMask': 'nextPageToken,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.googleMapsUri,places.priceLevel,places.photos,places.reviews,places.location,places.primaryTypeDisplayName,places.primaryType,places.types,places.websiteUri'
+        'X-Goog-FieldMask': 'nextPageToken,places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.googleMapsUri,places.priceLevel,places.photos,places.reviews,places.location,places.primaryTypeDisplayName,places.primaryType,places.types,places.websiteUri'
     }
     data = {
         "textQuery": query,
@@ -94,7 +98,6 @@ def fetch_places(query, min_rating, max_reviews):
     
     return all_places
 
-# Create a DataFrame from the fetched places
 def create_dataframe(places):
     data = []
     for place in places:
@@ -118,14 +121,14 @@ def create_dataframe(places):
         latitude = location.get('latitude', 'N/A')
         longitude = location.get('longitude', 'N/A')
         
-        # Extract the "text" field from primaryTypeDisplayName
         primary_type_display = place.get('primaryTypeDisplayName', {}).get('text', 'N/A')
         
         data.append({
+            'place_id': place['id'],  # Keep the Google Maps place_id
             'name': place['displayName']['text'],
             'rating': place.get('rating', 'N/A'),
             'user_ratings_total': place.get('userRatingCount', 'N/A'),
-            'category': primary_type_display,  # Use primaryTypeDisplayName for category
+            'category': primary_type_display,
             'primary_type': place.get('primaryType', 'N/A'),
             'types': ', '.join(place.get('types', [])),
             'url': place.get('googleMapsUri', 'N/A'),
@@ -136,14 +139,27 @@ def create_dataframe(places):
             'reviews': review_details,
             'latitude': latitude,
             'longitude': longitude,
+            'search_query': query,
+            'last_updated': datetime.now().isoformat()
         })
-    return pd.DataFrame(data)
+    return data
+
+def save_to_supabase(places):
+    for place in places:
+        # Always insert a new entry
+        supabase.table('gmaps_gems').insert(place).execute()
 
 # Function to perform the search
 def perform_search():
     with st.spinner("Searching for places..."):
         places = fetch_places(query, min_rating, max_reviews)
-        df = create_dataframe(places)
+        data = create_dataframe(places)
+        
+        # Save results to Supabase
+        save_to_supabase(data)
+        
+        # Convert data to DataFrame for display
+        df = pd.DataFrame(data)
         
         # Sort the DataFrame by rating, from highest to lowest
         df = df.sort_values(by=['rating', 'user_ratings_total'], ascending=[False, True])
@@ -153,8 +169,8 @@ def perform_search():
         
     st.write(f"Found {len(df)} places with rating {min_rating}+ and less than {max_reviews} reviews:")
     
-    # Display the DataFrame with selected columns
-    st.dataframe(df[['name', 'rating', 'user_ratings_total', 'category', 'url', 'website', 'address', 'price_level']])
+    # Display the DataFrame with selected columns, including place_id
+    st.dataframe(df[['name', 'place_id', 'rating', 'user_ratings_total', 'category', 'url', 'website', 'address', 'price_level']])
     
     # Display photos, reviews, and location for each place
     for index, row in df.iterrows():
@@ -236,9 +252,6 @@ if st.button("Search") or (query != st.session_state.get('previous_query', '') a
 # Initialize the previous_query in session state if it doesn't exist
 if 'previous_query' not in st.session_state:
     st.session_state['previous_query'] = None
-
-# Display list of restaurants
-# st.write(f"Restaurants: {len(filtered_places)}")
 
 # Add this CSS to your existing st.markdown call or create a new one
 st.markdown("""
