@@ -2,3 +2,4 @@ pandas==2.2.3
 Requests==2.32.3
 st_clickable_images==0.0.3
 streamlit==1.39.0
+supabase==2.9.0
