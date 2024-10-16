@@ -23,7 +23,7 @@ def convert_price_level(price_level):
 # Page title
 st.set_page_config(page_title='Four Point Nine', page_icon='🏗️', layout='wide')
 st.title("Find Gems on Google Maps")
-st.info("\"4.9 rating and <100 reviews on Google Maps.\" - Spencer\n\n*Note: Searches don't always find every new place, the more specific the better.*")
+st.info("\"The best places have a 4.9 rating and <100 reviews on Google Maps.\" - [Spencer](https://x.com/spenciefy)\n\n*Note: Searches don't always find every new place, the more specific the better.*")
 
 col1, col2, col3 = st.columns([2, 1, 1])
 
